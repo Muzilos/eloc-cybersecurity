@@ -13,7 +13,7 @@ logging.basicConfig(
 )
 
 with open('flag.txt', 'r') as f:
-    flag = f.read()
+    flag = f.read().strip()
 
 def init_db():
     """Initialize the database with sample data"""

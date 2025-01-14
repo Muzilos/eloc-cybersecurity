@@ -5,7 +5,7 @@ from pathlib import Path
 
 app = Flask(__name__)
 with open('flag.txt', 'r') as f:
-    flag = f.read()
+    flag = f.read().strip()
 
 # Configure logging
 logging.basicConfig(

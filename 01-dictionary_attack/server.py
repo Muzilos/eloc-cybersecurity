@@ -15,9 +15,9 @@ logging.basicConfig(
 
 # Obtain flag and password from hidden files
 with open('password.txt', 'r') as f:
-    password_from_file = f.read()
+    password_from_file = f.read().strip()
 with open('flag.txt', 'r') as f:
-    flag_from_file = f.read()
+    flag_from_file = f.read().strip()
 
 # Vulnerable user database - FOR EDUCATIONAL PURPOSES ONLY
 users = {

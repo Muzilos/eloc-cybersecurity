@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gadget Store - Cookie Challenge</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .user-info {
+            text-align: right;
+        }
+        .products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .product-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .product-card h3 {
+            margin-top: 0;
+        }
+        .price {
+            color: #007bff;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        .buy-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .buy-button:hover {
+            background: #218838;
+        }
+        .nav-links a {
+            margin-left: 15px;
+            text-decoration: none;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Gadget Store</h1>
+        <div class="user-info">
+            {% if user_data %}
+                <p>Welcome, {{ user_data.username }}!</p>
+                <div class="nav-links">
+                    {% if user_data.role == 'admin' %}
+                        <a href="/admin">Admin Panel</a>
+                    {% endif %}
+                    <a href="/logout">Logout</a>
+                </div>
+            {% else %}
+                <a href="/login">Login</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="products">
+        {% for product in products %}
+            <div class="product-card">
+                <h3>{{ product.name }}</h3>
+                <p class="price">${{ "%.2f"|format(product.price) }}</p>
+                {% if user_data %}
+                    <a href="/purchase/{{ product.id }}" class="buy-button">Buy Now</a>
+                {% else %}
+                    <p><i>Please login to make purchases</i></p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if not user_data %}
+        <div style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+            <p><strong>👋 Welcome to the Store!</strong></p>
+            <p>Login credentials for testing:</p>
+            <ul>
+                <li>Username: student</li>
+                <li>Password: password123</li>
+            </ul>
+        </div>
+    {% endif %}
+</body>
+</html>

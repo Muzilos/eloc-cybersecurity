@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel - Cookie Challenge</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .admin-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .flag-section {
+            background: #28a745;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background: #007bff;
+            color: white;
+        }
+        .danger-zone {
+            background: #dc3545;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .button {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #5a6268;
+        }
+        .home-link {
+            color: #007bff;
+            text-decoration: none;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="home-link">← Back to Store</a>
+    
+    <div class="admin-panel">
+        <h1>🔐 Admin Control Panel</h1>
+        
+        <div class="flag-section">
+            <h3>🚩 Congratulations!</h3>
+            <p>You've successfully accessed the admin panel. Here's your flag:</p>
+            <code>{{ flag }}</code>
+        </div>
+
+        <h2>User Management</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Balance</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for username, data in users.items() %}
+                <tr>
+                    <td>{{ username }}</td>
+                    <td>{{ data.role }}</td>
+                    <td>${{ "%.2f"|format(data.balance) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="danger-zone">
+            <h3>⚠️ Danger Zone</h3>
+            <p>These actions affect the entire system. Use with caution!</p>
+            <button class="button" onclick="alert('Not implemented in demo')">Reset All Passwords</button>
+            <button class="button" onclick="alert('Not implemented in demo')">Clear All Orders</button>
+            <button class="button" onclick="alert('Not implemented in demo')">System Maintenance Mode</button>
+        </div>
+    </div>
+</body>
+</html>
