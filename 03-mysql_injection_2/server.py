@@ -4,6 +4,8 @@ import logging
 from pathlib import Path
 
 app = Flask(__name__)
+with open('flag.txt', 'r') as f:
+    flag = f.read()
 
 # Configure logging
 logging.basicConfig(
@@ -11,9 +13,6 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
-
-with open('flag.txt', 'r') as f:
-    flag = f.read()
 
 def init_db():
     """Initialize the database with sample data"""
@@ -48,10 +47,43 @@ def init_db():
     ]
     c.executemany('INSERT INTO students VALUES (?,?,?)', students)
     
-    # Insert the secret flag
-    c.execute('INSERT INTO secret_flags VALUES (1, ?)', 
-              (flag,))
+    # Create additional tables to make discovery more interesting
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS user_data (
+            id INTEGER PRIMARY KEY,
+            username TEXT,
+            password_hash TEXT
+        )
+    ''')
     
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS school_info (
+            id INTEGER PRIMARY KEY,
+            name TEXT,
+            location TEXT
+        )
+    ''')
+    
+    # Insert the secret flag with a less obvious table/column name
+    c.execute('DROP TABLE IF EXISTS system_configuration')
+    c.execute('''
+        CREATE TABLE system_configuration (
+            id INTEGER PRIMARY KEY,
+            setting_key TEXT,
+            setting_value TEXT
+        )
+    ''')
+    
+    # Insert some decoy data and hide the flag among it
+    configs = [
+        (1, 'school_name', 'Springfield High'),
+        (2, 'semester', 'Fall 2024'),
+        (3, 'maintenance_mode', 'false'),
+        (4, 'secret_key', flag),
+        (5, 'theme_color', '#007bff'),
+        (6, 'max_students', '1000')
+    ]
+    c.executemany('INSERT INTO system_configuration VALUES (?,?,?)', configs)    
     conn.commit()
     conn.close()
 
@@ -131,4 +163,4 @@ if __name__ == '__main__':
     For classroom use only.
     """)
     
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    app.run(debug=True, host='0.0.0.0', port=5002)
