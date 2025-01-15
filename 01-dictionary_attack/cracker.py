@@ -50,8 +50,8 @@ class PasswordCracker:
             
             # Handle rate limiting
             if response.status_code == 429:
-                logging.warning("Rate limit hit. Sleeping for 30 seconds...")
-                time.sleep(30)
+                logging.warning("Rate limit hit. Sleeping for 5 seconds...")
+                time.sleep(5)
                 return False
             
             # Check if login was successful

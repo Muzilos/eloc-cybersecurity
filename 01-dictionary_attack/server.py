@@ -30,7 +30,7 @@ users = {
 
 # Rate limiting configuration
 RATE_LIMIT = 100  # Maximum attempts per window
-RATE_WINDOW = 30  # Window in seconds
+RATE_WINDOW = 5  # Window in seconds
 attempt_tracker = {}
 
 def rate_limit(f):
