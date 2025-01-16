@@ -3,13 +3,14 @@ from functools import wraps
 import time
 import logging
 from werkzeug.security import generate_password_hash, check_password_hash
+import os
 
-app = Flask(__name__)
+app = Flask(__name__,)
 
 # Configure logging
 logging.basicConfig(
     filename='ctf_challenge.log',
-    level=logging.INFO,
+    level=logging.DEBUG,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 

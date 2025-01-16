@@ -1,3 +1,6 @@
 password*.txt
 flag.txt
 solutions.txt
+venv/
+__pycache__/
+ctf_challenge.log
