@@ -68,12 +68,12 @@
                 <p>Welcome, {{ user_data.username }}!</p>
                 <div class="nav-links">
                     {% if user_data.role == 'admin' %}
-                        <a href="/admin">Admin Panel</a>
+                        <a href="admin">Admin Panel</a>
                     {% endif %}
-                    <a href="/logout">Logout</a>
+                    <a href="logout">Logout</a>
                 </div>
             {% else %}
-                <a href="/login">Login</a>
+                <a href="login">Login</a>
             {% endif %}
         </div>
     </div>
@@ -84,7 +84,7 @@
                 <h3>{{ product.name }}</h3>
                 <p class="price">${{ "%.2f"|format(product.price) }}</p>
                 {% if user_data %}
-                    <a href="/purchase/{{ product.id }}" class="buy-button">Buy Now</a>
+                    <a href="/04-cookie_tampering/purchase/{{ product.id }}" class="buy-button">Buy Now</a>
                 {% else %}
                     <p><i>Please login to make purchases</i></p>
                 {% endif %}

@@ -2,8 +2,10 @@ from flask import Flask, request, render_template, jsonify
 import sqlite3
 import logging
 from pathlib import Path
+from os import path
 
 app = Flask(__name__)
+directory = path.dirname(__file__) 
 
 # Configure logging
 logging.basicConfig(
@@ -17,7 +19,7 @@ with open('flag.txt', 'r') as f:
 
 def init_db():
     """Initialize the database with sample data"""
-    conn = sqlite3.connect('students.db')
+    conn = sqlite3.connect(f'{directory}/students.db')
     c = conn.cursor()
     
     # Create tables
@@ -70,7 +72,7 @@ def search_students():
         # Intentionally vulnerable query
         query = f"SELECT * FROM students WHERE name LIKE '%{name}%'"
         
-        conn = sqlite3.connect('students.db')
+        conn = sqlite3.connect(f'{directory}/students.db')
         c = conn.cursor()
         
         # Execute the query and fetch results
@@ -118,7 +120,7 @@ def reset_db():
 
 if __name__ == '__main__':
     # Create database directory if it doesn't exist
-    Path('students.db').parent.mkdir(exist_ok=True)
+    Path(f'{directory}/students.db').parent.mkdir(exist_ok=True)
     
     # Initialize the database
     init_db()

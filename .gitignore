@@ -4,3 +4,4 @@ solutions.txt
 venv/
 __pycache__/
 ctf_challenge.log
+*.db
