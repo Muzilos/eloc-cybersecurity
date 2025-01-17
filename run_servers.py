@@ -643,6 +643,245 @@ def home():
     </html>
     '''
 
+# Add this near your other route definitions
+
+@app.route('/stats')
+def stats():
+    conn = sqlite3.connect('students.db')
+    c = conn.cursor()
+    
+    # Get total number of users
+    c.execute('SELECT COUNT(DISTINCT username) FROM students')
+    total_users = c.fetchone()[0]
+    
+    # Get total number of challenges
+    challenge_count = len(all_dirs)
+    
+    # Get completion counts for each challenge
+    c.execute('''
+        SELECT challenge_name, COUNT(*) as completion_count 
+        FROM completions 
+        GROUP BY challenge_name 
+        ORDER BY completion_count DESC
+    ''')
+    challenge_stats = c.fetchall()
+    
+    # Get user completion stats (number of challenges completed by each user)
+    c.execute('''
+        SELECT 
+            username,
+            COUNT(*) as challenges_completed,
+            MIN(completed_at) as first_completion,
+            MAX(completed_at) as last_completion
+        FROM completions 
+        GROUP BY username 
+        ORDER BY challenges_completed DESC, last_completion ASC
+    ''')
+    user_stats = c.fetchall()
+    
+    # Get first solver for each challenge
+    c.execute('''
+        SELECT c1.challenge_name, c1.username, c1.completed_at
+        FROM completions c1
+        INNER JOIN (
+            SELECT challenge_name, MIN(completed_at) as first_completion
+            FROM completions
+            GROUP BY challenge_name
+        ) c2 
+        ON c1.challenge_name = c2.challenge_name 
+        AND c1.completed_at = c2.first_completion
+        ORDER BY c1.completed_at ASC
+    ''')
+    first_solves = c.fetchall()
+    
+    conn.close()
+    
+    return f'''
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Challenge Stats</title>
+        <style>
+            body {{
+                font-family: system-ui, -apple-system, sans-serif;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 2rem;
+                background-color: #f5f5f5;
+            }}
+            .stats-container {{
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 2rem;
+                margin-bottom: 2rem;
+            }}
+            .stats-card {{
+                background: white;
+                padding: 1.5rem;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }}
+            .stats-card h2 {{
+                margin-top: 0;
+                color: #333;
+                border-bottom: 2px solid #eee;
+                padding-bottom: 0.5rem;
+            }}
+            table {{
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 1rem;
+            }}
+            th, td {{
+                padding: 0.75rem;
+                text-align: left;
+                border-bottom: 1px solid #eee;
+            }}
+            th {{
+                background-color: #f8f9fa;
+                font-weight: 600;
+            }}
+            tr:hover {{
+                background-color: #f8f9fa;
+            }}
+            .highlight {{
+                color: #0066cc;
+                font-weight: 600;
+            }}
+            .progress-bar {{
+                background: #e9ecef;
+                border-radius: 4px;
+                height: 20px;
+                margin-top: 0.5rem;
+                overflow: hidden;
+            }}
+            .progress-bar-fill {{
+                background: #0066cc;
+                height: 100%;
+                transition: width 0.3s ease;
+            }}
+            .summary-stats {{
+                background: #0066cc;
+                color: white;
+                padding: 1.5rem;
+                border-radius: 8px;
+                margin-bottom: 2rem;
+                display: flex;
+                justify-content: space-around;
+                text-align: center;
+            }}
+            .summary-stat {{
+                display: flex;
+                flex-direction: column;
+            }}
+            .stat-value {{
+                font-size: 2rem;
+                font-weight: bold;
+                margin-bottom: 0.5rem;
+            }}
+            .stat-label {{
+                font-size: 0.9rem;
+                opacity: 0.9;
+            }}
+        </style>
+    </head>
+    <body>
+        <h1>Challenge Server Statistics</h1>
+        
+        <div class="summary-stats">
+            <div class="summary-stat">
+                <div class="stat-value">{total_users}</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="summary-stat">
+                <div class="stat-value">{challenge_count}</div>
+                <div class="stat-label">Total Challenges</div>
+            </div>
+            <div class="summary-stat">
+                <div class="stat-value">
+                    {sum(1 for user in user_stats if user[1] == challenge_count)}
+                </div>
+                <div class="stat-label">Users Completed All</div>
+            </div>
+        </div>
+        
+        <div class="stats-container">
+            <div class="stats-card">
+                <h2>Challenge Completion Stats</h2>
+                <table>
+                    <tr>
+                        <th>Challenge</th>
+                        <th>Completion Rate</th>
+                    </tr>
+                    {''.join(
+                        f"""
+                        <tr>
+                            <td>{challenge}</td>
+                            <td>
+                                {count} / {total_users} 
+                                ({(count/total_users*100 if total_users else 0):.1f}%)
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill" 
+                                         style="width: {(count/total_users*100 if total_users else 0)}%">
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        """
+                        for challenge, count in challenge_stats
+                    )}
+                </table>
+            </div>
+            
+            <div class="stats-card">
+                <h2>User Leaderboard</h2>
+                <table>
+                    <tr>
+                        <th>User</th>
+                        <th>Challenges Completed</th>
+                        <th>Last Completion</th>
+                    </tr>
+                    {''.join(
+                        f"""
+                        <tr>
+                            <td>{username}</td>
+                            <td>
+                                {completed} / {challenge_count}
+                                ({(completed/challenge_count*100):.1f}%)
+                            </td>
+                            <td>{last_completion}</td>
+                        </tr>
+                        """
+                        for username, completed, _, last_completion in user_stats[:10]
+                    )}
+                </table>
+            </div>
+            
+            <div class="stats-card">
+                <h2>First Solves</h2>
+                <table>
+                    <tr>
+                        <th>Challenge</th>
+                        <th>First Solver</th>
+                        <th>Timestamp</th>
+                    </tr>
+                    {''.join(
+                        f"""
+                        <tr>
+                            <td>{challenge}</td>
+                            <td class="highlight">{username}</td>
+                            <td>{timestamp}</td>
+                        </tr>
+                        """
+                        for challenge, username, timestamp in first_solves
+                    )}
+                </table>
+            </div>
+        </div>
+    </body>
+    </html>
+    '''
+
 # Initialize database
 init_db()
 
