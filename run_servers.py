@@ -104,10 +104,16 @@ NAV_STYLES = """
         background: #ccc;
         pointer-events: none;
     }
+    .github-link {
+        background: #333 !important;
+    }
+    .github-link:hover {
+        background: #222 !important;
+    }
 </style>
 """
 
-def create_nav_buttons(current_dir, all_dirs):
+def create_nav_buttons(current_dir, all_dirs, github_url):
     """Create navigation buttons HTML based on current directory"""
     sorted_dirs = sorted(all_dirs)
     current_idx = sorted_dirs.index(current_dir)
@@ -123,10 +129,11 @@ def create_nav_buttons(current_dir, all_dirs):
         next_dir = sorted_dirs[current_idx + 1]
         next_link = f'<a href="/{next_dir}">Next Challenge →</a>'
     
-    return f'<div class="challenge-nav">{prev_link}{next_link}</div>'
+    github_link = f'<a href="{github_url}/tree/main/{current_dir}" class="github-link" target="_blank">View on GitHub</a>'
+    
+    return f'<div class="challenge-nav">{prev_link}{github_link}{next_link}</div>'
 
-# JavaScript to inject into HTML responses
-def get_prefix_and_nav_js(current_dir, all_dirs):
+def get_prefix_and_nav_js(current_dir, all_dirs, github_url):
     return f"""
 {NAV_STYLES}
 <script>
@@ -144,7 +151,7 @@ def get_prefix_and_nav_js(current_dir, all_dirs):
         return originalFetch(url, options);
     }};
 </script>
-{create_nav_buttons(current_dir, all_dirs)}
+{create_nav_buttons(current_dir, all_dirs, github_url)}
 """
 
 def wrap_app_with_prefix_handler(app, prefix, all_dirs):
@@ -156,7 +163,8 @@ def wrap_app_with_prefix_handler(app, prefix, all_dirs):
             content = response.get_data(as_text=True)
             
             # Create the combined JS and nav buttons for this specific directory
-            inject_content = get_prefix_and_nav_js(prefix, all_dirs)
+            inject_content = get_prefix_and_nav_js(prefix, all_dirs, 
+                                                   github_url='https://github.com/Muzilos/eloc-cybersecurity')
             
             # Insert our content just before the closing </body> tag
             if '</body>' in content:
